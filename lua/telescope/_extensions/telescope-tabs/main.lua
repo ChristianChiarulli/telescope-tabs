@@ -85,38 +85,24 @@ M.list_tabs = function(opts)
 					local selection = action_state.get_selected_entry()
 					vim.api.nvim_set_current_tabpage(selection.value[5])
 				end)
-				map(
-					"i",
-					opts.i_close_tab_shortcut,
-					function()
-						local current_picker = action_state.get_current_picker(prompt_bufnr)
-						local current_entry = action_state:get_selected_entry()
-						if vim.api.nvim_get_current_tabpage() == current_entry.value[5] then
-							print("You cannot close the currently visible tab :(")
-							return
-						end
-						current_picker:delete_selection(function(selection)
-							for _, wid in ipairs(selection.value[4]) do
-								vim.api.nvim_win_close(wid, false)
-							end
-						end)
-					end,
-					"n",
-					opts.n_close_tab_shortcut,
-					function()
-						local current_picker = action_state.get_current_picker(prompt_bufnr)
-						local current_entry = action_state:get_selected_entry()
-						if vim.api.nvim_get_current_tabpage() == current_entry.value[5] then
-							print("You cannot close the currently visible tab :(")
-							return
-						end
-						current_picker:delete_selection(function(selection)
-							for _, wid in ipairs(selection.value[4]) do
-								vim.api.nvim_win_close(wid, false)
-							end
-						end)
+
+				local function close_tab()
+					local current_picker = action_state.get_current_picker(prompt_bufnr)
+					local current_entry = action_state:get_selected_entry()
+					if vim.api.nvim_get_current_tabpage() == current_entry.value[5] then
+						print("You cannot close the currently visible tab :(")
+						return
 					end
-				)
+					current_picker:delete_selection(function(selection)
+						for _, wid in ipairs(selection.value[4]) do
+							vim.api.nvim_win_close(wid, false)
+						end
+					end)
+				end
+
+				map("i", opts.i_close_tab_shortcut, close_tab)
+				map("n", opts.n_close_tab_shortcut, close_tab)
+
 				return true
 			end,
 			previewer = opts.show_preview and conf.file_previewer({}) or nil,
@@ -125,3 +111,4 @@ M.list_tabs = function(opts)
 end
 
 return M
+
